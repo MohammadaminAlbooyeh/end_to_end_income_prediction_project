@@ -1,0 +1,55 @@
+"""
+Data loading utilities for the Income Prediction Project.
+"""
+
+import pandas as pd
+import requests
+import os
+from pathlib import Path
+from .config import config
+
+def download_adult_dataset():
+    """Download the Adult dataset from UCI ML Repository if not present."""
+    data_dir = config.DATA_DIR
+    data_dir.mkdir(exist_ok=True)
+    file_path = data_dir / config.RAW_DATA_FILE
+
+    if file_path.exists():
+        print(f"Dataset already exists at {file_path}")
+        return
+
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+    print("Downloading Adult dataset...")
+    response = requests.get(url)
+    response.raise_for_status()
+
+    with open(file_path, 'wb') as f:
+        f.write(response.content)
+    print(f"Dataset downloaded to {file_path}")
+
+def load_raw_data():
+    """Load the raw Adult dataset into a pandas DataFrame."""
+    file_path = config.DATA_DIR / config.RAW_DATA_FILE
+
+    if not file_path.exists():
+        download_adult_dataset()
+
+    # Column names for Adult dataset
+    columns = [
+        'age', 'workclass', 'fnlwgt', 'education', 'education-num',
+        'marital-status', 'occupation', 'relationship', 'race', 'sex',
+        'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income'
+    ]
+
+    df = pd.read_csv(file_path, header=None, names=columns, na_values=' ?')
+    return df
+
+def load_processed_data():
+    """Load processed data if available, otherwise load and process raw data."""
+    processed_path = config.DATA_DIR / config.PROCESSED_DATA_FILE
+
+    if processed_path.exists():
+        return pd.read_pickle(processed_path)
+    else:
+        # For now, just return raw data; processing will be in preprocessing
+        return load_raw_data()
