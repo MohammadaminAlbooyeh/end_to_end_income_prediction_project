@@ -53,3 +53,24 @@ def load_processed_data():
     else:
         # For now, just return raw data; processing will be in preprocessing
         return load_raw_data()
+
+
+def verify_raw_data(file_path=None):
+    """Verify the raw data file has the expected schema (15 columns).
+
+    Returns True if verification passes, False otherwise.
+    """
+    if file_path is None:
+        file_path = config.DATA_DIR / config.RAW_DATA_FILE
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {file_path}")
+
+    # Try reading a small sample to verify column count
+    try:
+        sample = pd.read_csv(file_path, header=None, nrows=5)
+    except Exception:
+        return False
+
+    # Adult dataset should have 15 columns
+    return sample.shape[1] == 15

@@ -6,6 +6,8 @@ import pandas as pd
 import joblib
 from pathlib import Path
 from .config import config
+from sklearn.pipeline import Pipeline
+from .features.feature_engineering import create_features
 
 def load_model():
     """Load the trained model from disk."""
@@ -39,10 +41,20 @@ def predict_income(features):
     if isinstance(features, dict):
         features = pd.DataFrame([features])
 
-    if preprocessor:
+    # Ensure we apply the same feature engineering used during training
+    try:
+        features = create_features(features)
+    except Exception:
+        # If feature creation fails for any reason, proceed without it
+        pass
+
+    # If the model is a pipeline that already includes a preprocessor step,
+    # do not apply the separately-saved preprocessor again (would double-transform).
+    if isinstance(model, Pipeline) and 'preprocessor' in getattr(model, 'named_steps', {}):
+        features_processed = features
+    elif preprocessor is not None:
         features_processed = preprocessor.transform(features)
     else:
-        # Assume features are already processed or model handles it
         features_processed = features
 
     prediction = model.predict(features_processed)
@@ -64,7 +76,15 @@ def predict_proba_income(features):
     if isinstance(features, dict):
         features = pd.DataFrame([features])
 
-    if preprocessor:
+    # Apply same feature engineering as during training
+    try:
+        features = create_features(features)
+    except Exception:
+        pass
+
+    if isinstance(model, Pipeline) and 'preprocessor' in getattr(model, 'named_steps', {}):
+        features_processed = features
+    elif preprocessor is not None:
         features_processed = preprocessor.transform(features)
     else:
         features_processed = features

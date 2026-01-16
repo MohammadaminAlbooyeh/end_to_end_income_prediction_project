@@ -11,22 +11,21 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from .config import config
 from .data_loader import load_raw_data
+from .utils.preprocessing import preprocess_pipeline
+from .features.feature_engineering import create_features
 
 def preprocess_data(df):
-    """Basic preprocessing: handle missing values, encode categoricals."""
-    df = df.copy()
+    """Wrapper preprocessing used by training and tests.
 
-    # Fill missing values
-    for col in df.columns:
-        if df[col].dtype == 'object':
-            df[col] = df[col].fillna(df[col].mode()[0])
-        else:
-            df[col] = df[col].fillna(df[col].median())
+    Uses helpers in `src.utils.preprocessing` and applies lightweight feature engineering.
+    """
+    # deterministic preprocessing
+    df_proc = preprocess_pipeline(df)
 
-    # Encode target
-    df[config.TARGET] = df[config.TARGET].str.strip().map({'>50K': 1, '<=50K': 0})
+    # add derived features (kept additive so original columns remain)
+    df_proc = create_features(df_proc)
 
-    return df
+    return df_proc
 
 def create_preprocessor():
     """Create a preprocessor for categorical and numerical features."""
