@@ -181,7 +181,8 @@ class TestTrainModel:
             model = train_model()
             
             classifier = model.named_steps['classifier']
-            assert isinstance(classifier, RandomForestClassifier)
+            from xgboost import XGBClassifier
+            assert isinstance(classifier, XGBClassifier)
 
     def test_train_model_creates_models_directory(self, mock_config, sample_adult_data):
         """Test that train_model creates MODELS_DIR if it doesn't exist."""
@@ -198,8 +199,10 @@ class TestTrainModel:
         with patch('src.train.load_raw_data', return_value=sample_adult_data):
             model = train_model()
             
-            # Prepare test data
-            X_test = sample_adult_data.drop('income', axis=1).head(1)
+            # Prepare test data - apply same preprocessing as training
+            from src.train import preprocess_data
+            X_test_raw = sample_adult_data.drop('income', axis=1).head(1)
+            X_test = preprocess_data(X_test_raw)
             predictions = model.predict(X_test)
             
             assert len(predictions) == 1

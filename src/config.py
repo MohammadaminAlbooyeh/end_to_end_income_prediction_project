@@ -30,10 +30,13 @@ class Config:
     # Feature engineering
     CATEGORICAL_FEATURES = [
         'workclass', 'education', 'marital-status', 'occupation',
-        'relationship', 'race', 'sex', 'native-country'
+        'relationship', 'race', 'sex', 'native-country',
+        'age_bucket', 'hours_per_week_bucket', 'workclass_sector'
     ]
     NUMERICAL_FEATURES = ['age', 'fnlwgt', 'education-num', 'capital-gain',
-                          'capital-loss', 'hours-per-week']
+                          'capital-loss', 'hours-per-week',
+                          'capital_gain_binary', 'capital_loss_binary',
+                          'marital_status_simplified', 'native_country_is_us']
     TARGET = 'income'
 
     # Training settings

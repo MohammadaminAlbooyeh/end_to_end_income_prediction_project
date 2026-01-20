@@ -5,9 +5,15 @@ Prediction utilities for the Income Prediction Project.
 import pandas as pd
 import joblib
 from pathlib import Path
-from .config import config
+
+try:
+    from .config import config
+    from .features.feature_engineering import create_features
+except ImportError:
+    from config import config
+    from features.feature_engineering import create_features
+
 from sklearn.pipeline import Pipeline
-from .features.feature_engineering import create_features
 
 def load_model():
     """Load the trained model from disk."""

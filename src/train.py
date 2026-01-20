@@ -9,10 +9,18 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from .config import config
-from .data_loader import load_raw_data
-from .utils.preprocessing import preprocess_pipeline
-from .features.feature_engineering import create_features
+from xgboost import XGBClassifier
+
+try:
+    from .config import config
+    from .data_loader import load_raw_data
+    from .utils.preprocessing import preprocess_pipeline
+    from .features.feature_engineering import create_features
+except ImportError:
+    from config import config
+    from data_loader import load_raw_data
+    from utils.preprocessing import preprocess_pipeline
+    from features.feature_engineering import create_features
 
 def preprocess_data(df):
     """Wrapper preprocessing used by training and tests.
@@ -61,10 +69,12 @@ def train_model():
     preprocessor = create_preprocessor()
     model = Pipeline([
         ('preprocessor', preprocessor),
-        ('classifier', RandomForestClassifier(
+        ('classifier', XGBClassifier(
             n_estimators=config.N_ESTIMATORS,
             max_depth=config.MAX_DEPTH,
-            random_state=config.RANDOM_STATE
+            random_state=config.RANDOM_STATE,
+            use_label_encoder=False,
+            eval_metric='logloss'
         ))
     ])
 

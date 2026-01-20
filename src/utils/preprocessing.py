@@ -3,8 +3,13 @@
 Provide deterministic, small helpers used by `src.train` and tests.
 """
 import pandas as pd
-from .helpers import safe_mode
-from ..config import config
+
+try:
+    from .helpers import safe_mode
+    from ..config import config
+except ImportError:
+    from helpers import safe_mode
+    from config import config
 
 
 def fill_missing_values(df: pd.DataFrame) -> pd.DataFrame:

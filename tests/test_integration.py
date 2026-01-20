@@ -84,8 +84,10 @@ class TestEndToEndPipeline:
             model_path = mock_config.MODELS_DIR / "income_model.pkl"
             loaded_model = joblib.load(model_path)
             
-            # Make predictions with both models
-            X_test = sample_adult_data.drop('income', axis=1).head(1)
+            # Make predictions with both models - use same preprocessing as training
+            from src.train import preprocess_data
+            X_test_raw = sample_adult_data.drop('income', axis=1).head(1)
+            X_test = preprocess_data(X_test_raw)
             pred1 = original_model.predict(X_test)
             pred2 = loaded_model.predict(X_test)
             

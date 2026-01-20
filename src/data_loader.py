@@ -6,7 +6,11 @@ import pandas as pd
 import requests
 import os
 from pathlib import Path
-from .config import config
+
+try:
+    from .config import config
+except ImportError:
+    from config import config
 
 def download_adult_dataset():
     """Download the Adult dataset from UCI ML Repository if not present."""
